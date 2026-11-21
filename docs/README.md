@@ -1,7 +1,8 @@
 # RePrime — Project Page
 
 > **Align the Pair, Not the Sample: Representation Alignment for Faster and Better One-Step Generators**  
-> Anonymous project page · no venue or review information
+> Anonymous project page · no venue or review information  
+> **Live:** https://mingxiao-li.github.io/RePrime/
 
 一个为论文制作的可直接部署的单页项目主页。纯 HTML / CSS / JavaScript，无构建步骤、无依赖安装，适合 GitHub Pages。
 
@@ -60,7 +61,7 @@ Pages → `main` / `/ (root)`。地址：`https://mingxiao-li.github.io/reprime-
 
 > 已包含 `.nojekyll`；复制/上传时一定要带上它，否则 GitHub 可能用 Jekyll 处理页面。
 >
-> **注意：** `Mingxiao-Li/RePrime` 目前是 private，Free 计划下 private 仓库不能发布 Pages；要么先改成 public，要么走独立 public 仓库。页面上的 Code 按钮也指向这个 private 仓库，公开前对外会 404。
+> **已部署：** https://mingxiao-li.github.io/RePrime/（`Mingxiao-Li/RePrime` 已改为 public，Pages 从 `master` / `docs` 发布，HTTPS 已强制）。
 
 ---
 

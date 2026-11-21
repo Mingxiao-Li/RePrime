@@ -1,20 +1,14 @@
 # 部署到 GitHub Pages（完整步骤）
 
-## 你这边的实际情况（已检查）
+## 部署状态（2026-11-21 已完成）
 
-- 本机 `gh` 已登录：`Mingxiao-Li`，有 `repo` 权限；`git push` 不会再卡在认证。
-- `Mingxiao-Li/RePrime`：**private**，默认分支 **`master`**，目前只有 `README.md` / `LICENSE` / `.gitignore`（约 3 KB）。
-- Pages 还没开启。
-- 页面里的 **Code 按钮指向这个 private 仓库**，对外访问会 404，直到仓库改成 public。
+- 线上地址：**https://mingxiao-li.github.io/RePrime/**
+- 仓库：`Mingxiao-Li/RePrime`，**public**，默认分支 **`master`**
+- Pages：来源 `master` / `/docs`，状态 `built`，HTTPS 已强制
+- 已验证：页面、图片、两段视频（含 AAC 音频）、Code 链接、移动端、axe WCAG 2A/AA
+- 本文保留为后续更新 / 迁移 / 重新部署的参考
 
-所以先做一个决定：
-
-| 你的想法 | 走哪个方案 | 最终 URL | Code 按钮 |
-|---|---|---|---|
-| 代码也准备公开 | **A：RePrime 仓库 + `docs/`** | `https://mingxiao-li.github.io/RePrime/` | 正常 |
-| 代码暂时不公开 | **B：新建 public 的 `reprime-page` 仓库** | `https://mingxiao-li.github.io/reprime-page/` | 会 404，需要先改成 “Code · coming soon” |
-
-推荐 **A**（如果代码准备公开）；否则走 **B**，我可以帮你把 Code 按钮先改成占位。
+> 历史说明：部署前仓库是 private、Pages 未开启。下面 A0–A4 记录了从零开始的完整流程，供以后换仓库或迁移时复用。
 
 ---
 
