@@ -1,0 +1,4 @@
+_base_: _base.yaml
+# Low-memory pipeline check: disable torch.compile. Not for paper numbers.
+train:
+  compile: false

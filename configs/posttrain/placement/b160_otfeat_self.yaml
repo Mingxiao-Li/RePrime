@@ -1,0 +1,17 @@
+# Alignment with the OT-loss feature space (ResNet-MAE + ConvNeXt tokens).
+# target=self; feature_extractor=ot_stack (reuses the frozen OT encoders).
+_base_: ../_base.yaml
+train:
+  compile: false
+alignment:
+  enabled: true
+  method: ot_guided
+  target: self
+  feature_extractor: ot_stack
+  ot_family: convnext
+  ot_token_key: convenxt_stage_2
+  block: 8
+  weight: 1.0
+  start_step: 250
+  ramp_steps: 100
+  end_step: 2500

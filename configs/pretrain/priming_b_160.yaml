@@ -1,0 +1,5 @@
+# Priming-B baseline: 160 epochs, perceptual reconstruction, no alignment.
+
+_base_: _base.yaml
+data:
+  random_horizontal_flip: true

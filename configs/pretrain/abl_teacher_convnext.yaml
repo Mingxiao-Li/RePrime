@@ -1,0 +1,33 @@
+# Ablation: align to the ConvNeXt space used by the OT stage (160 epochs).
+
+_base_: _base.yaml
+# Alignment-space ablation at FULL budget (160 epochs, matching s1-repa160):
+# ConvNeXt-B stage-2 tokens (same-space with the Stage-2 judge).
+# Fresh run: resume-based extension is blocked by the checkpoint
+# recipe-identity check, and a fresh 160ep run is exactly reproducible
+# for the first 50,040 steps anyway (deterministic B-family pipeline,
+# step/epoch-seeded RNG; only saving fields differ from the 40e config).
+train:
+  compile: false
+  measure_flops: false
+  keep_n_ckpts: 8
+  milestone_interval: 5
+  print_freq: 100
+data:
+  encoder_cache: assets/ot/representations
+alignment:
+  enabled: true
+  method: ot_guided
+  feature_extractor: ot_stack
+  ot_family: convnext
+  ot_token_key: convenxt_stage_2
+  target: self
+  loss_form: tokenwise
+  tokenwise_interp: true
+  img_size: 224
+  block: 5
+  weight: 0.5
+  start_step: 0
+  ramp_steps: 0
+  end_step: 0
+  head_lr: 0.0001

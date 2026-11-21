@@ -1,0 +1,28 @@
+# Ablation: alignment depth block 8 of 16 (40-epoch protocol).
+
+_base_: _base.yaml
+# Layer-depth ablation: REPA at block 8 (vs existing block 5 = repa100_40e).
+# Everything else identical to the window ablation arms (40ep, full-window, tokenwise).
+train:
+  epochs: 40
+  allow_short: true
+  compile: false
+  measure_flops: false
+  keep_n_ckpts: 12
+  milestone_interval: 8
+  print_freq: 100
+alignment:
+  enabled: true
+  method: ot_guided
+  feature_extractor: dinov2
+  target_encoder: vit_large_patch14_dinov2.lvd142m
+  target: self
+  loss_form: tokenwise
+  tokenwise_interp: false
+  img_size: 224
+  block: 8
+  weight: 0.5
+  start_step: 0
+  ramp_steps: 0
+  end_step: 0
+  head_lr: 0.0001

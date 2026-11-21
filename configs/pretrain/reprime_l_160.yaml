@@ -1,0 +1,35 @@
+# RePrime-L: full-window paired-path alignment at block 10 of 32 (DINOv2-L/14).
+
+_base_: _base.yaml
+# L-size flagship: official Priming-L Stage-1 recipe (160 epochs) + full-window
+# REPA. Inlines l160_perceptual.yaml's deltas (OST_L, perceptual_threshold 1.0,
+# min_lr 0) because the YAML loader resolves only one _base_ level.
+# Block 10 = ~1/3 depth of the 32-block OST_L (REPA paper: block 8/24 for SiT-L).
+# Milestones every 10 epochs to bound disk (L ckpt ~3.4GB each).
+model:
+  model: OST_L
+loss:
+  perceptual_threshold: 1.0
+optimizer:
+  min_lr: 0
+train:
+  compile: false
+  measure_flops: false
+  keep_n_ckpts: 6
+  milestone_interval: 10
+  print_freq: 100
+alignment:
+  enabled: true
+  method: ot_guided
+  feature_extractor: dinov2
+  target_encoder: vit_large_patch14_dinov2.lvd142m
+  target: self
+  loss_form: tokenwise
+  tokenwise_interp: false
+  img_size: 224
+  block: 10
+  weight: 0.5
+  start_step: 0
+  ramp_steps: 0
+  end_step: 0
+  head_lr: 0.0001

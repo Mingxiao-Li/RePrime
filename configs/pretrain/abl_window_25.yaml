@@ -1,0 +1,30 @@
+# Ablation: alignment for the first 25% of priming (40-epoch protocol).
+
+_base_: _base.yaml
+# Stage-1 REPA arm: alignment active for the FIRST 25% of updates (0..12,510).
+# Sanctioned shortened recipe: 40 epochs (50,040 updates), compile off
+# (forward hooks + fullgraph compile are unsafe together), milestone every
+# 8 epochs so checkpoints land at ~10k/20k/30k/40k/50k updates.
+train:
+  epochs: 40
+  allow_short: true
+  compile: false
+  measure_flops: false
+  keep_n_ckpts: 12
+  milestone_interval: 8
+  print_freq: 100
+alignment:
+  enabled: true
+  method: ot_guided
+  feature_extractor: dinov2
+  target_encoder: vit_large_patch14_dinov2.lvd142m
+  target: self                 # paired: hidden(x_s) <-> DINOv2(x_0), same image
+  loss_form: tokenwise         # per-position cosine (REPA-faithful, no max)
+  tokenwise_interp: false      # 224 input -> 16x16=256 tokens == generator grid
+  img_size: 224
+  block: 5                     # ~1/3 depth of the 16-block OST_B (REPA rule)
+  weight: 0.5                  # REPA lambda
+  start_step: 0
+  ramp_steps: 0
+  end_step: 12510              # 25% of 50,040
+  head_lr: 0.0001

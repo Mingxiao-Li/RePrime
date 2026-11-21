@@ -1,0 +1,28 @@
+# RePrime-B with the best alignment depth: block 8 of 16 (FD6 8.28 at 160 epochs).
+
+_base_: _base.yaml
+# Full-budget Stage-1 (official 160 epochs = 200,160 updates) + full-window REPA.
+# Priority-4 experiment: does the 40ep REPA win hold at the official operating point?
+# Milestone checkpoints every 5 epochs (32 kept) so Stage-2 can later start from
+# different pretraining depths to measure the acceleration effect directly.
+train:
+  compile: false          # alignment forward hooks are incompatible with fullgraph compile
+  measure_flops: false
+  keep_n_ckpts: 8
+  milestone_interval: 5   # -> milestones at epochs 5,10,...,160 (every 6,255 updates)
+  print_freq: 100
+alignment:
+  enabled: true
+  method: ot_guided
+  feature_extractor: dinov2
+  target_encoder: vit_large_patch14_dinov2.lvd142m
+  target: self
+  loss_form: tokenwise
+  tokenwise_interp: false
+  img_size: 224
+  block: 8
+  weight: 0.5
+  start_step: 0
+  ramp_steps: 0
+  end_step: 0             # full window: alignment never disabled (best arm at 40ep)
+  head_lr: 0.0001

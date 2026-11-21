@@ -1,0 +1,49 @@
+_base_: _base.yaml
+# RePrime-J: single-stage joint training (reconstruction + OT) with paired-path
+# alignment. 160 epochs = 200,160 joint updates; OT every 2 updates; alpha ramps
+# linearly from 0 to 1 over the first 25,000 updates (warmup_frac = 25k / 200,160).
+train:
+  epochs: 160
+  compile: false
+  measure_flops: false
+  keep_n_ckpts: 12
+  milestone_interval: 8
+  print_freq: 100
+alignment:
+  enabled: true
+  method: ot_guided
+  feature_extractor: dinov2
+  target_encoder: vit_large_patch14_dinov2.lvd142m
+  target: self
+  loss_form: tokenwise
+  tokenwise_interp: false
+  img_size: 224
+  block: 5
+  weight: 0.5
+  start_step: 0
+  ramp_steps: 0
+  end_step: 0                 # full window (same as the winning 40-epoch arm)
+  head_lr: 0.0001
+joint_ot:
+  enabled: true
+  encoder_cache: assets/ot/representations
+  data_path: data/imagenet
+  reference_workers: 4
+  stack: convnext_full_mae
+  kind: featurewise_ot
+  coefficient: 5.0
+  global_classes_per_step: 16
+  samples_per_class: 64
+  real_references_per_class: 128
+  epsilon_mixture:
+    '0.001': 0.75
+    '0.01': 0.25
+  num_iterations: 1000
+  tolerance: 1.0e-06
+  microbatch: 8
+  seed: 7919
+  warmup_frac: 0.125
+  ot_every: 2
+  cfg: 1.0
+  t_min: 0.1
+  t_max: 1.0

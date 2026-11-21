@@ -1,0 +1,16 @@
+# Token-wise REPA with DINOv2 252 (18x18) resampled to the 16x16 generator grid.
+_base_: ../_base.yaml
+train:
+  compile: false
+alignment:
+  enabled: true
+  method: ot_guided
+  target: plan_paired
+  loss_form: tokenwise
+  tokenwise_interp: true
+  img_size: 256
+  block: 8
+  weight: 1.0
+  start_step: 250
+  ramp_steps: 100
+  end_step: 2500

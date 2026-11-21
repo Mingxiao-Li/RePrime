@@ -1,0 +1,3 @@
+# Priming-B post-training: 25k OT updates from the released Priming-B/160 checkpoint.
+
+_base_: _base.yaml

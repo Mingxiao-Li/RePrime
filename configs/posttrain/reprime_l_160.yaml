@@ -1,0 +1,14 @@
+# RePrime-L post-training: official 25k OT recipe, initialized from a RePrime-L/160 checkpoint via --init-checkpoint.
+
+_base_: _base.yaml
+model:
+  model: OST_L
+initialization:
+  checkpoint: checkpoints/pretraining/priming_l_160.pth
+train:
+  save_every: 2500
+# repa160 checkpoint + OFFICIAL FULL-BUDGET Stage-2 (25,000 updates).
+# 100% identical to the official recipe (b160.yaml == _base.yaml):
+# data/imagenet, compile on, official eval cadence (50k images every 1250).
+# The ONLY difference vs the official run is the initialization checkpoint,
+# overridden on the command line (exp_s1_repa160e step_0200160.pth).

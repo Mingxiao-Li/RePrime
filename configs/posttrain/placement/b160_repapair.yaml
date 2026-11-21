@@ -1,0 +1,14 @@
+# V1: faithful REPA in stage 2 -- random same-class pairing (no OT guidance).
+_base_: ../_base.yaml
+train:
+  compile: false
+alignment:
+  enabled: true
+  method: ot_guided
+  target: random_paired
+  block: 8
+  weight: 1.0
+  start_step: 250
+  ramp_steps: 100
+  end_step: 2500
+  target_encoder: vit_large_patch14_dinov2.lvd142m

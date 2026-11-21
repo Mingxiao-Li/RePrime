@@ -1,0 +1,18 @@
+# Max-cosine control: OT feature space class-pooled alignment.
+_base_: ../_base.yaml
+train:
+  compile: false
+alignment:
+  enabled: true
+  method: ot_guided
+  target: pooled
+  loss_form: maxcos
+  feature_extractor: ot_stack
+  ot_family: convnext
+  ot_token_key: convenxt_stage_2
+  pool_size: 16
+  block: 8
+  weight: 1.0
+  start_step: 250
+  ramp_steps: 100
+  end_step: 2500

@@ -1,0 +1,12 @@
+# Priming-L post-training: 25k OT updates from the released Priming-L/160 checkpoint.
+
+_base_: _base.yaml
+# L-size official full-budget Stage-2 (25,000 updates) from the OFFICIAL released
+# Priming-L Stage-1 checkpoint. Same recipe as the B-scale reference
+# (b160_official_25k): only the model family and init checkpoint change.
+model:
+  model: OST_L
+evaluation:
+  every: 1250
+train:
+  save_every: 2500

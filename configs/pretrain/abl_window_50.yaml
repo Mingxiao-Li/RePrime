@@ -1,0 +1,27 @@
+# Ablation: alignment for the first 50% of priming (40-epoch protocol).
+
+_base_: _base.yaml
+# Stage-1 REPA arm: alignment active for the FIRST 50% of updates (0..25,020).
+train:
+  epochs: 40
+  allow_short: true
+  compile: false
+  measure_flops: false
+  keep_n_ckpts: 12
+  milestone_interval: 8
+  print_freq: 100
+alignment:
+  enabled: true
+  method: ot_guided
+  feature_extractor: dinov2
+  target_encoder: vit_large_patch14_dinov2.lvd142m
+  target: self
+  loss_form: tokenwise
+  tokenwise_interp: false
+  img_size: 224
+  block: 5
+  weight: 0.5
+  start_step: 0
+  ramp_steps: 0
+  end_step: 25020              # 50% of 50,040
+  head_lr: 0.0001

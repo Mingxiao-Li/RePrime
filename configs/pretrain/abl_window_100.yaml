@@ -1,0 +1,29 @@
+# Ablation: alignment for the full priming run (40-epoch protocol).
+
+_base_: _base.yaml
+# Stage-1 REPA arm: alignment active for the ENTIRE run (0%..end, no early stop).
+# Completes the duration dose axis: base(0%) / repa25 / repa50 / repa100.
+# Tests HASTE's "early-stopped alignment beats full-duration" on Priming.
+train:
+  epochs: 40
+  allow_short: true
+  compile: false
+  measure_flops: false
+  keep_n_ckpts: 12
+  milestone_interval: 8
+  print_freq: 100
+alignment:
+  enabled: true
+  method: ot_guided
+  feature_extractor: dinov2
+  target_encoder: vit_large_patch14_dinov2.lvd142m
+  target: self
+  loss_form: tokenwise
+  tokenwise_interp: false
+  img_size: 224
+  block: 5
+  weight: 0.5
+  start_step: 0
+  ramp_steps: 0
+  end_step: 0                 # 0 = never disabled: alignment for the full run
+  head_lr: 0.0001

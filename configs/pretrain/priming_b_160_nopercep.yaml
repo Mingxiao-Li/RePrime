@@ -1,0 +1,8 @@
+# Priming-B baseline without the perceptual term (ablation reference).
+
+_base_: _base.yaml
+data:
+  random_horizontal_flip: true
+loss:
+  aux:
+    enabled: false
