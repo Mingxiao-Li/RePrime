@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RePrime — Align the Pair, Not the Sample</title>
+<meta name="description" content="Representation alignment for faster and better one-step generators. The same REPA-style loss helps on the paired reconstruction path and collapses diversity on the generative path. RePrime halves priming epochs and quarters post-training updates on ImageNet 256².">
+<meta name="theme-color" content="#0B0B11">
+<script>
+document.documentElement.classList.add("js");
+// Safety net: if the interaction script fails to load, show all content.
+setTimeout(function () {
+  if (!window.__reprimeReady) document.documentElement.classList.remove("js");
+}, 2500);
+</script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="Align the Pair, Not the Sample">
+<meta property="og:description" content="A representation-alignment placement principle for one-step generators. FID 1.155 on ImageNet 256² with a single network evaluation.">
+<meta property="og:image" content="https://mingxiao-li.github.io/RePrime/assets/img/og.jpg">
+<meta property="og:url" content="https://mingxiao-li.github.io/RePrime/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://mingxiao-li.github.io/RePrime/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230B0B11'/%3E%3Cpath d='M20 46V18h9.5a9 9 0 0 1 0 18H25l13 10' stroke='%238E86FF' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>section[id],main[id]{scroll-margin-top:84px}</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"><span></span></div>
+
+<header class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top" aria-label="RePrime home">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="1" y="1" width="30" height="30" rx="9" fill="none" stroke="currentColor" stroke-opacity=".28"/>
+        <path d="M9 23V9h5.2a4.6 4.6 0 0 1 0 9.2H12l7.5 4.8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>RePrime</span>
+    </a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#puzzle">Puzzle</a>
+      <a href="#idea">Idea</a>
+      <a href="#method">Method</a>
+      <a href="#mechanism">Mechanism</a>
+      <a href="#results">Results</a>
+      <a href="#recipe">Recipe</a>
+    </nav>
+    <a class="btn btn-small btn-ghost" href="https://github.com/Mingxiao-Li/RePrime" target="_blank" rel="noopener">Code <span aria-hidden="true">↗</span></a>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="hero">
+  <div class="hero-bg" aria-hidden="true">
+    <div class="orb orb-a"></div>
+    <div class="orb orb-b"></div>
+    <div class="hero-grid"></div>
+  </div>
+  <div class="wrap hero-inner">
+    <p class="eyebrow reveal">Project page</p>
+    <h1 class="reveal" style="--d:.05s">Align the <em class="pair">Pair</em>,<br>Not the <em class="sample">Sample</em>.</h1>
+    <p class="hero-deck reveal" style="--d:.12s">Representation alignment for faster and better one-step generators.</p>
+    <p class="hero-lede reveal" style="--d:.18s">A one-step generator learns from two kinds of inputs: corrupted real images that come with their clean counterpart, and pure noise that comes with nothing. The same alignment loss helps on one path and destroys diversity on the other. <strong>RePrime follows the pair.</strong></p>
+    <div class="hero-actions reveal" style="--d:.24s">
+      <a class="btn btn-primary" href="#explainer"><span aria-hidden="true">▶</span> Watch the 15s explainer</a>
+      <a class="btn btn-outline" href="https://github.com/Mingxiao-Li/RePrime" target="_blank" rel="noopener">Code <span aria-hidden="true">↗</span></a>
+      <span class="btn btn-outline is-disabled" aria-disabled="true">Paper · coming soon</span>
+    </div>
+    <p class="authors reveal" style="--d:.3s">Anonymous Authors</p>
+  </div>
+
+  <div class="wrap hero-visual reveal" style="--d:.36s">
+    <figure class="teaser-frame">
+      <div class="teaser-topline">
+        <span class="dot-live" aria-hidden="true"></span>
+        <span>One network evaluation · no guidance · class-conditional ImageNet 256×256</span>
+        <span class="badge-fid">FID 1.155</span>
+      </div>
+      <div class="teaser-strip">
+        <img src="assets/img/teaser.jpg" alt="A grid of one-step ImageNet 256×256 samples generated by RePrime-L." data-zoom data-caption="One-step ImageNet 256×256 samples from RePrime-L. A single network evaluation, no guidance. FID 1.155." width="1800" height="673" loading="eager" fetchpriority="high" decoding="async">
+      </div>
+      <figcaption class="visually-hidden">One-step ImageNet 256×256 samples from RePrime-L, FID 1.155.</figcaption>
+    </figure>
+    <div class="hero-stats">
+      <div class="hstat">
+        <div class="hstat-n">2<span>×</span></div>
+        <div class="hstat-l">fewer priming epochs to match the 160-epoch baseline</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-n">4<span>×</span></div>
+        <div class="hstat-l">fewer post-training updates to pass its final quality</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-n">1.155</div>
+        <div class="hstat-l">FID at L scale, no guidance, one forward pass</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-n">24<span>×</span></div>
+        <div class="hstat-l">less compute than WF-XL/2, with better FID</div>
+      </div>
+    </div>
+  </div>
+  <a class="scroll-cue" href="#puzzle" aria-label="Scroll to the puzzle"><span></span></a>
+</section>
+
+<!-- ================= TL;DR ================= -->
+<section class="tldr">
+  <div class="wrap">
+    <div class="tldr-grid">
+      <article class="tldr-card reveal">
+        <div class="icon-tile" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 7h6a4 4 0 0 1 4 4v6M20 7h-6a4 4 0 0 0-4 4"/><circle cx="4" cy="7" r="1.6"/><circle cx="20" cy="7" r="1.6"/><circle cx="14" cy="17" r="1.6"/></svg>
+        </div>
+        <h3>Two inputs, one network</h3>
+        <p>Training feeds heavily corrupted real images. Inference feeds pure noise. These two paths are not interchangeable — and only one of them has a target that knows which image it came from.</p>
+      </article>
+      <article class="tldr-card reveal" style="--d:.06s">
+        <div class="icon-tile" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 4v16M6 9l-3 3 3 3M18 9l3 3-3 3"/><circle cx="12" cy="4" r="1.4"/><circle cx="12" cy="20" r="1.4"/></svg>
+        </div>
+        <h3>Placement flips the sign</h3>
+        <p>The identical loss improves fidelity and coverage on the pair. On the sample it collapses recall in <strong>all 17</strong> configurations we tried — five target constructions, two spaces, λ down to 0.05.</p>
+      </article>
+      <article class="tldr-card reveal" style="--d:.12s">
+        <div class="icon-tile" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 20V10a7 7 0 0 1 14 0v10"/><path d="M9 20v-8a3 3 0 0 1 6 0v8" stroke-dasharray="2 2.4"/></svg>
+        </div>
+        <h3>An interface for noise</h3>
+        <p>Alignment carves a block where noise and data features meet. Post-training then routes noise through it — and how much image semantics flows through predicts sample quality across 16 models.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 01 PUZZLE ================= -->
+<section class="section" id="puzzle">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="sec-num">01 — The puzzle</div>
+      <div>
+        <h2 class="reveal">A one-step generator <br>lives two lives.</h2>
+        <p class="lede reveal" style="--d:.06s">REPA made diffusion training an order of magnitude faster by aligning intermediate features with a frozen encoder. Transplanting it to a one-step generator looks trivial — until you ask what the target should be.</p>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="prose reveal">
+        <p>On the <strong>paired path</strong>, the generator reconstructs a corrupted real image <span class="mono">x<sub>s</sub> = 0.2 x<sub>0</sub> + 0.8 ε</span>. Its clean counterpart exists, so the target is simply the encoder's view of that same image.</p>
+        <p>On the <strong>generative path</strong>, the generator maps pure noise to a sample. No real image corresponds to it, yet this is where the final model operates. Every target has to be invented: a random same-class image, a pool of class images, the image the OT plan matches, the sample itself, or an EMA teacher's sample.</p>
+        <p class="accent-line">None of these targets knows anything about <em>this</em> particular sample.</p>
+      </div>
+      <aside class="aside-card reveal" style="--d:.1s">
+        <div class="aside-kicker">The tempting move</div>
+        <p class="aside-quote">“The generative path is where the model runs. Align there.”</p>
+        <div class="aside-foot">It is the natural choice. It is also the one that fails.</div>
+      </aside>
+    </div>
+
+    <!-- INTERACTIVE BENCH -->
+    <div class="bench reveal" data-bench>
+      <div class="bench-top">
+        <div class="bench-title">
+          <span class="bench-kicker">Interactive</span>
+          <span>Placement bench</span>
+        </div>
+        <div class="segmented" role="tablist" aria-label="Choose where to attach the alignment loss">
+          <button role="tab" aria-selected="true" data-mode="none">No alignment</button>
+          <button role="tab" aria-selected="false" data-mode="pair">Align the pair</button>
+          <button role="tab" aria-selected="false" data-mode="sample">Align the sample</button>
+        </div>
+      </div>
+
+      <div class="bench-body">
+        <div class="bench-plot">
+          <svg id="cloud" viewBox="0 0 460 340" role="img" aria-label="Schematic two-dimensional embedding of the samples of one class under different alignment placements.">
+            <defs>
+              <radialGradient id="plotGlow" cx="50%" cy="50%" r="55%">
+                <stop offset="0%" stop-color="#8E86FF" stop-opacity=".13"/>
+                <stop offset="100%" stop-color="#8E86FF" stop-opacity="0"/>
+              </radialGradient>
+              <filter id="dotGlow" x="-80%" y="-80%" width="260%" height="260%">
+                <feGaussianBlur stdDeviation="2.2" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+            <rect width="460" height="340" fill="#0C0C14"/>
+            <g class="plot-grid" aria-hidden="true"></g>
+            <rect width="460" height="340" fill="url(#plotGlow)"/>
+            <g class="plot-prototype" aria-hidden="true">
+              <circle cx="230" cy="168" r="34" fill="none" stroke="#F6F4EF" stroke-opacity=".16" stroke-dasharray="3 5"/>
+              <path d="M230 158v20M220 168h20" stroke="#F6F4EF" stroke-opacity=".5" stroke-width="1.4"/>
+              <text x="230" y="214" text-anchor="middle">class prototype m<tspan baseline-shift="sub" font-size="9">c</tspan></text>
+            </g>
+            <g class="plot-dots"></g>
+            <g class="plot-axis" aria-hidden="true">
+              <text x="18" y="26">samples of one class · 2-D schematic</text>
+            </g>
+          </svg>
+          <div class="plot-note">Illustration only — the axes are a schematic embedding. Every number on the right is measured.</div>
+        </div>
+
+        <div class="bench-readout">
+          <div class="readout-top">
+            <span class="status-dot" data-status-dot></span>
+            <span class="status-text" data-status>Baseline · no auxiliary loss</span>
+          </div>
+          <h3 class="readout-verdict" data-verdict>Broad coverage, average fidelity.</h3>
+          <p class="readout-desc" data-desc>Post-training alone. The class is covered, but the samples are only as good as the representation the OT loss already sees.</p>
+
+          <div class="metrics">
+            <div class="metric">
+              <div class="metric-label">Recall <span class="metric-sub">coverage ↑</span></div>
+              <div class="metric-val" data-recall>0.452</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">FD<sub>6</sub> <span class="metric-sub">fidelity ↓</span></div>
+              <div class="metric-val" data-fd>14.71</div>
+            </div>
+          </div>
+
+          <div class="chips" data-chips aria-hidden="true">
+            <span>Random same-class</span><span>Token pool</span><span>OT-matched</span><span>Self-target</span><span>EMA teacher</span>
+          </div>
+          <p class="bench-footnote" data-footnote>Same 2.5k-update protocol, Priming-B initialization.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout reveal">
+      <p>It is not a tuning problem. At <span class="mono">λ = 0.05</span> recall still falls to 0.252. Switching alignment off after 750 updates still leaves it at 0.242. In the OT ConvNeXt space the projector fits its targets almost perfectly — cosine 0.998 — and recall still collapses. <strong>A well-fit target is worthless if it says nothing about the sample.</strong></p>
+    </div>
+
+    <figure class="figure reveal">
+      <div class="zoom-wrap">
+        <img src="assets/img/collapse.jpg" alt="Five rows of samples for class 207 using the same eight noise vectors: no alignment, generative-path alignment to OT-matched, random same-class, and EMA-teacher targets, and paired-path RePrime initialization." data-zoom data-caption="Prototype attraction. Class 207, the same eight noise vectors in every row, 2.5k post-training updates. Rows 1–4: Priming-B with no alignment and with generative-path alignment to OT-matched, random same-class, and EMA-teacher targets. Row 5: RePrime initialization." width="1600" height="830" loading="lazy" decoding="async">
+        <span class="zoom-hint">Click to enlarge</span>
+      </div>
+      <figcaption><strong>Prototype attraction.</strong> Class 207, the same eight noise vectors in every row. Generative-path alignment (rows 2–4) produces close-up, centered dogs on simpler backgrounds — typical modes, less coverage. OT-matched and random targets are nearly identical, because seen by DINOv2 the OT plan picks partners almost at random within a class.</figcaption>
+    </figure>
+
+    <div class="verdict-grid">
+      <div class="verdict-card bad reveal">
+        <div class="verdict-head"><span>Generative path</span><span class="pill pill-bad">−</span></div>
+        <div class="verdict-num">17 / 17</div>
+        <p>configurations collapse recall from <strong>0.452</strong> to <strong>0.149–0.252</strong>, at maintained or higher precision.</p>
+      </div>
+      <div class="verdict-card good reveal" style="--d:.06s">
+        <div class="verdict-head"><span>Paired path</span><span class="pill pill-good">+</span></div>
+        <div class="verdict-num">20 / 20</div>
+        <p>comparisons improve FD<sub>6</sub> by <strong>1–18%</strong>; recall never drops by more than 0.005.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 02 IDEA ================= -->
+<section class="section section--paper" id="idea">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="sec-num">02 — The idea</div>
+      <div>
+        <h2 class="reveal">If the target knows nothing about you,<br>the best you can do is become your class.</h2>
+        <p class="lede reveal" style="--d:.06s">A small proposition explains the asymmetry — and predicts it before any experiment.</p>
+      </div>
+    </div>
+
+    <div class="idea-grid">
+      <div class="prop-card reveal">
+        <div class="prop-kicker">Proposition 1 · Alignability</div>
+        <div class="prop-eq">
+          <span class="eq-main">ℛ(u) = 𝔼[1 − u(X)<sup>⊤</sup>T] ≥ 1 − 𝔼‖μ(X)‖</span>
+          <span class="eq-sub">equality at u<sup>*</sup>(X) = μ(X) / ‖μ(X)‖, with μ(X) = 𝔼[T | X]</span>
+        </div>
+        <div class="prop-body">
+          <p>If the target is independent of the input given the class, then μ(X) is just the class mean m<sub>c</sub>, and the optimal prediction is <strong>constant within each class</strong>.</p>
+          <p>The excess <span class="mono">𝒜 = 𝔼‖μ(X)‖ − 𝔼<sub>c</sub>‖m<sub>c</sub>‖</span> measures how much instance information the input carries about its target. When 𝒜 = 0, the loss can only pull every sample of a class toward one prototype.</p>
+        </div>
+      </div>
+
+      <div class="idea-steps reveal" style="--d:.08s">
+        <div class="step-row">
+          <div class="step-idx">i</div>
+          <div><h4>The target carries no identity</h4><p>Random, pooled, OT-matched, self, EMA — all are independent of the input given the class.</p></div>
+        </div>
+        <div class="step-row">
+          <div class="step-idx">ii</div>
+          <div><h4>The optimum is a class direction</h4><p>The best possible feature is the class mean. There is nothing instance-specific left to learn.</p></div>
+        </div>
+        <div class="step-row">
+          <div class="step-idx">iii</div>
+          <div><h4>Gradient pulls everything together</h4><p>Precision rises. Recall falls. The model becomes a prototype printer.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="evidence-band reveal">
+      <div class="evidence-item">
+        <div class="evidence-num">0.81 <span class="vs">vs</span> 0.73</div>
+        <p>After priming, the reconstruction of <span class="mono">x<sub>s</sub></span> is closer in DINOv2 space to <strong>its own clean image</strong> than to its class prototype. The paired input still reveals identity.</p>
+      </div>
+      <div class="evidence-item">
+        <div class="evidence-num">0.221 <span class="vs">vs</span> 0.213</div>
+        <p>Seen by DINOv2, an OT-matched target is barely closer to the sample than a <strong>random same-class</strong> image. The plan is meaningful to OT, not to semantics.</p>
+      </div>
+    </div>
+
+    <h3 class="subhead reveal">Break the correspondence, lose the gain.</h3>
+    <p class="sublede reveal">If the benefit were a generic regularizer or class-level semantics, random targets should recover most of it. They do not. The ranking tracks exactly how much of the target still describes the specific input.</p>
+
+    <div class="corr-chart reveal" data-bars>
+      <div class="corr-row" data-gain="0">
+        <div class="corr-label">No alignment</div>
+        <div class="corr-track"><span class="corr-fill neutral"></span></div>
+        <div class="corr-val">22.10</div>
+      </div>
+      <div class="corr-row" data-gain="12">
+        <div class="corr-label">Random same-class</div>
+        <div class="corr-track"><span class="corr-fill bad"></span></div>
+        <div class="corr-val">21.62</div>
+      </div>
+      <div class="corr-row" data-gain="16">
+        <div class="corr-label">Random same-class <span class="muted">(2nd run)</span></div>
+        <div class="corr-track"><span class="corr-fill bad"></span></div>
+        <div class="corr-val">21.47</div>
+      </div>
+      <div class="corr-row" data-gain="54">
+        <div class="corr-label">Own image, permuted tokens</div>
+        <div class="corr-track"><span class="corr-fill mid"></span></div>
+        <div class="corr-val">19.94</div>
+      </div>
+      <div class="corr-row" data-gain="100">
+        <div class="corr-label">Own image <span class="muted">(full correspondence)</span></div>
+        <div class="corr-track"><span class="corr-fill good"></span></div>
+        <div class="corr-val">18.10</div>
+      </div>
+      <div class="corr-axis"><span>FD<sub>6</sub> ↓ · 10-epoch priming + 5k post-training updates</span><span>bar length = share of the alignment gain recovered →</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 03 METHOD ================= -->
+<section class="section" id="method">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="sec-num">03 — The method</div>
+      <div>
+        <h2 class="reveal">Align the pair.<br>Throw the projector away.</h2>
+        <p class="lede reveal" style="--d:.06s">RePrime — <em>representation-aligned priming</em> — adds one term to priming. Nothing else changes: not the objective, not the architecture, not inference.</p>
+      </div>
+    </div>
+
+    <figure class="video-block reveal" id="explainer">
+      <div class="video-shell" data-video>
+        <video controls playsinline preload="none" poster="assets/img/method-poster.jpg" width="1280" height="720" aria-label="Animated explainer with a quiet music bed: the paired and generative paths of a one-step generator, and where representation alignment helps.">
+          <source src="assets/video/reprime_method.mp4" type="video/mp4">
+        </video>
+        <button class="video-play" type="button" aria-label="Play the 15-second method explainer"><span aria-hidden="true">▶</span></button>
+      </div>
+      <figcaption><strong>15-second explainer.</strong> One generator, two paths — and why the same loss helps on only one of them. Every step is labeled on screen, over a quiet original music bed (mute from the player controls).</figcaption>
+    </figure>
+
+    <div class="pipeline">
+      <div class="pipe-step reveal">
+        <div class="pipe-cap"><span>1</span> Corrupt</div>
+        <div class="pipe-imgs">
+          <figure><img src="assets/img/x0.jpg" alt="A clean ImageNet image." data-zoom data-caption="x0 — the clean image." width="256" height="256" decoding="async"><figcaption>x<sub>0</sub> · clean</figcaption></figure>
+          <div class="pipe-arrow" aria-hidden="true">→</div>
+          <figure><img src="assets/img/xs.jpg" alt="The same image corrupted with 80 percent Gaussian noise." data-zoom data-caption="xs = 0.2 x0 + 0.8 ε — the corrupted input." width="256" height="256" decoding="async"><figcaption>x<sub>s</sub> · 80% noise</figcaption></figure>
+        </div>
+        <p>At every priming step, mix a real image with Gaussian noise: <span class="mono">x<sub>s</sub> = 0.2x<sub>0</sub> + 0.8ε</span>. Identity survives the corruption.</p>
+      </div>
+
+      <div class="pipe-step reveal" style="--d:.08s">
+        <div class="pipe-cap"><span>2</span> Predict</div>
+        <div class="blockstack" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span class="hit"></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="blockstack-label"><span class="hit-dot"></span> block 5 of 16 · tap <span class="mono">h<sup>ℓ</sup></span></div>
+        <p>The generator reconstructs the image. From an intermediate block, take the patch tokens — the features where semantics are still forming.</p>
+      </div>
+
+      <div class="pipe-step reveal" style="--d:.16s">
+        <div class="pipe-cap"><span>3</span> Align</div>
+        <div class="align-viz">
+          <div class="align-patch"><span class="ph"></span><i>h<sup>ℓ</sup></i></div>
+          <div class="align-arrow">→<small>P<sub>ψ</sub></small></div>
+          <div class="align-patch target"><img src="assets/img/x0.jpg" alt="" width="256" height="256" decoding="async"><i>DINOv2(x<sub>0</sub>)</i></div>
+        </div>
+        <p>Match each token, through a light 2-layer projector, to frozen DINOv2-L/14 features of the <strong>same</strong> clean image.</p>
+      </div>
+    </div>
+
+    <div class="formula-bar reveal">
+      <div class="formula" tabindex="0" role="region" aria-label="Training objective">
+        <span class="f-l">ℒ<sub>Stage 1</sub></span> = ℒ<sub>rec</sub>(G<sub>θ</sub>(x<sub>s</sub>, c), x<sub>0</sub>) + λ · ℒ<sub>align</sub>(h<sup>ℓ</sup>(x<sub>s</sub>, c), E(x<sub>0</sub>))
+      </div>
+      <div class="formula-note">
+        <div><span class="k">λ</span> 0.5</div>
+        <div><span class="k">E</span> DINOv2-L/14</div>
+        <div><span class="k">ℓ</span> block 5 / 10</div>
+        <div><span class="k">stage 2</span> unchanged</div>
+        <div><span class="k">inference</span> zero cost</div>
+      </div>
+    </div>
+
+    <div class="method-notes">
+      <article class="note-card reveal">
+        <h4>Why a cross-space teacher?</h4>
+        <p>DINOv2 is not one of the OT feature spaces (ConvNeXt, ResNet-MAE). It supplies semantics post-training cannot obtain on its own, instead of re-weighting what the OT loss already matches.</p>
+      </article>
+      <article class="note-card reveal" style="--d:.06s">
+        <h4>Why is the projector discarded?</h4>
+        <p>It exists only to make gradients comparable. At inference it is gone, so the network is byte-for-byte the same as Priming. There is no inference-time cost and no new module to deploy.</p>
+      </article>
+      <article class="note-card reveal" style="--d:.12s">
+        <h4>What is RePrime-J?</h4>
+        <p>A joint variant that interleaves OT updates on noise every other step with aligned reconstruction. It yields a <strong>native</strong> one-step generator without a separate post-training stage; after refinement it reaches FID 1.224 at 115M parameters.</p>
+      </article>
+    </div>
+
+    <div class="cost-strip reveal">
+      <div><span class="cost-k">+43%</span><span class="cost-l">FLOPs per B priming update</span></div>
+      <div><span class="cost-k">+4–29%</span><span class="cost-l">total training compute at B scale</span></div>
+      <div><span class="cost-k">+14%</span><span class="cost-l">total training compute at L scale</span></div>
+      <div><span class="cost-k">0%</span><span class="cost-l">inference overhead</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 04 MECHANISM ================= -->
+<section class="section dark" id="mechanism">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="sec-num">04 — The mechanism</div>
+      <div>
+        <h2 class="reveal">Alignment builds a doorway.<br>Post-training teaches noise to walk through it.</h2>
+        <p class="lede reveal" style="--d:.06s">Post-training moves every block by only 2–4% of its norm. Whatever it exploits must already exist after priming. So we looked inside the generator.</p>
+      </div>
+    </div>
+
+    <div class="mech-grid">
+      <div class="mech-card reveal">
+        <div class="mech-num">01</div>
+        <h3>An interface appears — exactly where you aligned.</h3>
+        <p>The noise-vs-data feature gap is the Fréchet distance between the two feature sets, normalized by the data covariance. After 2.5k OT updates, its minimum sits precisely at the aligned block, for all four alignment depths, and it is <strong>2.6× tighter</strong> than the best block without alignment.</p>
+        <div class="mech-stats">
+          <div><span>0.70</span><small>gap at the interface</small></div>
+          <div><span>1.81</span><small>best gap, no alignment</small></div>
+        </div>
+      </div>
+      <div class="mech-card reveal" style="--d:.06s">
+        <div class="mech-num">02</div>
+        <h3>But the gap is not what matters.</h3>
+        <p>Generative-path alignment closes the gap too — largely by squeezing a class's noise features together. Across 16 models the gap is <strong>uncorrelated</strong> with quality. What predicts it is <em>semantic routing</em>: whether noise uses the interface the way real inputs do.</p>
+        <div class="mech-stats">
+          <div><span>ρ = 0.00</span><small>gap vs. FD<sub>6</sub></small></div>
+          <div class="good"><span>ρ = −0.90</span><small>routing vs. FD<sub>6</sub></small></div>
+        </div>
+      </div>
+    </div>
+
+    <figure class="figure figure--dark reveal">
+      <div class="zoom-wrap paper-bg">
+        <img src="assets/img/mechanism.png" alt="Mechanism plots: noise-versus-data gap by block for different alignment depths, and semantic routing at the interface versus FD6 for 16 models." data-zoom data-caption="Mechanism (2.5k OT updates, online weights). (a) Noise-vs-data feature gap by depth for 40-epoch RePrime aligned at different blocks; dots mark the aligned block. (b) Semantic routing at the interface vs. FD6 for 16 models." width="1800" height="548" loading="lazy" decoding="async">
+        <span class="zoom-hint">Click to enlarge</span>
+      </div>
+      <figcaption><strong>Left:</strong> the interface moves with the aligned block — it is created by alignment, not fixed by the architecture. <strong>Right:</strong> routing, not gap size, tracks sample quality across 16 models (Spearman ρ = −0.90).</figcaption>
+    </figure>
+
+    <div class="control-card reveal">
+      <div class="control-head">
+        <span class="bench-kicker">Correspondence control</span>
+        <h3>Random targets build the same interface — with nothing to route.</h3>
+      </div>
+      <div class="control-grid">
+        <div class="control-item">
+          <div class="control-label">No alignment</div>
+          <div class="control-bar"><span style="--v:0"></span></div>
+          <div class="control-val">routing −0.01 · FD<sub>6</sub> 24.24</div>
+        </div>
+        <div class="control-item">
+          <div class="control-label">Random same-class</div>
+          <div class="control-bar"><span class="bad" style="--v:0"></span></div>
+          <div class="control-val">routing −0.03 · FD<sub>6</sub> 23.89</div>
+        </div>
+        <div class="control-item">
+          <div class="control-label">Own image, permuted tokens</div>
+          <div class="control-bar"><span class="mid" style="--v:55"></span></div>
+          <div class="control-val">routing 0.11 · FD<sub>6</sub> 21.75</div>
+        </div>
+        <div class="control-item">
+          <div class="control-label">Own image</div>
+          <div class="control-bar"><span class="good" style="--v:85"></span></div>
+          <div class="control-val">routing 0.17 · FD<sub>6</sub> 20.28</div>
+        </div>
+      </div>
+      <p class="control-foot">All three aligned arms form an interface at block 5 — the random arm has the <em>smallest</em> gap. Yet its features predict held-out CLIP no better than no alignment (R² 0.361 vs. 0.360), and noise routes almost nothing through it. Instance correspondence is the active ingredient.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 05 RESULTS ================= -->
+<section class="section" id="results">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="sec-num">05 — Results</div>
+      <div>
+        <h2 class="reveal">Better at every budget.<br>Cheaper on the frontier.</h2>
+        <p class="lede reveal" style="--d:.06s">Class-conditional ImageNet 256×256, one network evaluation, no guidance. Compute counts both training stages and the frozen teacher.</p>
+      </div>
+    </div>
+
+    <div class="chart-card reveal">
+      <div class="chart-head">
+        <div>
+          <h3>Training compute vs. FID</h3>
+          <p>Down and to the left is better. Down and to the left is better. Compute is on a log scale.</p>
+        </div>
+        <div class="chart-legend" aria-hidden="true">
+          <span><i class="lg lg-prior"></i>prior work</span>
+          <span><i class="lg lg-base"></i>Priming</span>
+          <span><i class="lg lg-ours"></i>RePrime</span>
+        </div>
+      </div>
+      <div class="chart-wrap" id="frontier-wrap" tabindex="0" role="region" aria-label="Training compute versus FID chart (scrollable on narrow screens)">
+        <svg id="frontier" viewBox="0 0 920 500" role="group" aria-label="Scatter plot of training compute in EFLOPs versus FID. RePrime-L reaches FID 1.155 at 272 EFLOPs; RePrime-B reaches 1.303 at 157 EFLOPs, better than WF-XL/2 at 3744 EFLOPs."></svg>
+        <div class="chart-tip" id="chart-tip" role="status" aria-live="polite"></div>
+      </div>
+      <p class="chart-scroll-hint">Swipe the chart horizontally →</p>
+      <div class="chart-callout">
+        <span class="chart-callout-k">24×</span>
+        <p>RePrime-B (157 EFLOPs) beats WF-XL/2 (3744 EFLOPs) on FID — and RePrime-L at 272 EFLOPs reaches 1.155, the best one-step FID among the methods compared in Priming.</p>
+      </div>
+    </div>
+
+    <div class="table-block reveal">
+      <div class="table-head">
+        <h3>Main results</h3>
+        <p>Identical pipeline unless noted. “Ep.”: priming epochs. All models post-trained for 25k updates.</p>
+      </div>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Main results table (scrollable)">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Method</th>
+              <th scope="col">Ep.</th>
+              <th scope="col">EFLOPs</th>
+              <th scope="col">FID ↓</th>
+              <th scope="col">FD<sub>5</sub> ↓</th>
+              <th scope="col">Prec. ↑</th>
+              <th scope="col">Rec. ↑</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="group"><td colspan="7">Reported in Priming (1 NFE)</td></tr>
+            <tr><td>pMF-H</td><td>—</td><td>1968.5</td><td>2.15</td><td>8.14</td><td>—</td><td>—</td></tr>
+            <tr><td>iMF-XL/2</td><td>—</td><td>3201.1</td><td>1.74</td><td>9.75</td><td>—</td><td>—</td></tr>
+            <tr><td>Drifting-L</td><td>1280</td><td>1476.4</td><td>1.61</td><td>12.59</td><td>.815</td><td>.602</td></tr>
+            <tr><td>WF-XL/2</td><td>—</td><td>3744.4</td><td>1.33</td><td>11.07</td><td>.762</td><td>.674</td></tr>
+            <tr><td>Priming-B</td><td>160</td><td>124.2</td><td>1.38</td><td>11.23</td><td>.783</td><td>.624</td></tr>
+            <tr><td>Priming-L</td><td>160</td><td>239.0</td><td>1.19</td><td>7.10</td><td>.781</td><td>.649</td></tr>
+
+            <tr class="group"><td colspan="7">B · 115M parameters (our runs, identical pipeline)</td></tr>
+            <tr><td>Priming-B</td><td>160</td><td>124.2</td><td>1.373</td><td>11.27</td><td>.784</td><td>.620</td></tr>
+            <tr><td>Priming-B</td><td>200</td><td>143.4</td><td>1.353</td><td>10.91</td><td>.784</td><td>.625</td></tr>
+            <tr class="hl"><td>RePrime-B</td><td>120</td><td>129.8</td><td>1.349</td><td>10.76</td><td>.784</td><td>.627</td></tr>
+            <tr class="hl"><td>RePrime-B</td><td>160</td><td>157.3</td><td>1.303</td><td>10.20</td><td>.781</td><td>.639</td></tr>
+            <tr class="hl"><td>RePrime-B</td><td>200</td><td>184.8</td><td>1.283</td><td>9.66</td><td>.784</td><td>.631</td></tr>
+            <tr class="hl"><td>RePrime-B, block 8</td><td>160</td><td>157.3</td><td>1.268</td><td>9.82</td><td>.781</td><td>.641</td></tr>
+            <tr class="hl"><td>RePrime-B, block 8</td><td>200</td><td>184.8</td><td>1.266</td><td>9.66</td><td>.782</td><td>.635</td></tr>
+            <tr class="hl"><td>RePrime-J-B <sup>∗</sup></td><td>160</td><td>346.8</td><td class="best">1.224</td><td>10.60</td><td>.779</td><td>.640</td></tr>
+
+            <tr class="group"><td colspan="7">L · 405M parameters (our runs, identical pipeline)</td></tr>
+            <tr><td>Priming-L</td><td>160</td><td>239.0</td><td>1.174</td><td>7.41</td><td>.779</td><td>.648</td></tr>
+            <tr class="hl"><td>RePrime-L</td><td>160</td><td>272.1</td><td class="best">1.155</td><td class="best">6.43</td><td>.781</td><td>.644</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-foot"><sup>∗</sup>Joint training: 200k joint updates followed by 25k refinement updates. FID/FD<sub>5</sub> average three sampling seeds (std. ≤ 0.022 / ≤ 0.035). Best one-step FID among the methods compared in Priming: 1.155.</p>
+    </div>
+
+    <div class="speed-head reveal">
+      <h3 class="subhead">Two stages, both faster.</h3>
+      <p class="sublede">The teacher adds 43% FLOPs to a B priming update. So gains per update are not enough — we also compare at matched total compute. They survive.</p>
+    </div>
+
+    <div class="speed-grid">
+      <div class="speed-card reveal">
+        <div class="speed-n">2<span>×</span></div>
+        <h4>Fewer priming epochs</h4>
+        <p>80 epochs match the 160-epoch baseline (FD<sub>5</sub> 11.24 vs. 11.27); 120 epochs surpass the 200-epoch one.</p>
+      </div>
+      <div class="speed-card reveal" style="--d:.05s">
+        <div class="speed-n">4<span>×</span></div>
+        <h4>Fewer OT updates</h4>
+        <p>From the 160-epoch initialization, 3.75k updates reach the baseline's final FD<sub>6</sub> of 9.51; 6.25k surpass it.</p>
+      </div>
+      <div class="speed-card reveal" style="--d:.1s">
+        <div class="speed-n">9<span>×</span></div>
+        <h4>At low budgets</h4>
+        <p>At 40 epochs, 2.5k updates equal the baseline after 22.5k — the largest practical saving, since OT dominates compute.</p>
+      </div>
+      <div class="speed-card reveal" style="--d:.15s">
+        <div class="speed-n">−2.5%</div>
+        <h4>Matched compute</h4>
+        <p>RePrime-B at 80 epochs uses less total compute than Priming-B at 120 (102.3 vs. 105.0 EFLOPs) and is better on every metric.</p>
+      </div>
+    </div>
+
+    <figure class="figure reveal">
+      <div class="zoom-wrap paper-bg">
+        <img src="assets/img/budget.png" alt="Four budget plots: FID and FD5 versus priming epochs, FD5 versus total training compute, and post-training curves." data-zoom data-caption="RePrime accelerates both stages. (a,b) FID and FD5 after 25k post-training updates vs. priming epochs. (c) FD5 vs. total training compute, teacher included. (d) Post-training curves from the 160-epoch initializations." width="2000" height="700" loading="lazy" decoding="async">
+        <span class="zoom-hint">Click to enlarge</span>
+      </div>
+      <figcaption><strong>RePrime accelerates both stages.</strong> (a, b) FID and FD<sub>5</sub> vs. priming epochs, each followed by 25k post-training updates. (c) FD<sub>5</sub> vs. total compute — the speed-up survives the teacher's cost. (d) Post-training curves from the 160-epoch initializations.</figcaption>
+    </figure>
+
+    <figure class="video-block reveal">
+      <div class="video-shell" data-video>
+        <video controls playsinline preload="none" poster="assets/img/compare-poster.jpg" width="1280" height="720" aria-label="Same noise, same class, with a quiet music bed: a wipe compares Priming and RePrime samples at 160 epochs.">
+          <source src="assets/video/reprime_compare.mp4" type="video/mp4">
+        </video>
+        <button class="video-play" type="button" aria-label="Play the same-noise comparison"><span aria-hidden="true">▶</span></button>
+      </div>
+      <figcaption><strong>Same noise, same class.</strong> The divider wipes from Priming to RePrime at 160 epochs, revealing each sample in place — the same noise vectors, the same classes. FID 1.373 → 1.303; FD<sub>6</sub> 9.51 → 8.61. A quiet music bed plays with the wipe.</figcaption>
+    </figure>
+
+    <figure class="figure reveal">
+      <div class="zoom-wrap">
+        <img src="assets/img/qualitative.jpg" alt="Same-noise comparison: uncurated samples from Priming and RePrime at 40, 80, and 160 epochs, each column sharing class and noise." data-zoom data-caption="Same noise, different initialization. Uncurated samples from Priming (top) and RePrime (bottom) after 40, 80, and 160 priming epochs followed by 25k post-training updates, plus L scale at right." class="wide-img" width="2400" height="307" loading="lazy" decoding="async">
+        <span class="zoom-hint">Click to enlarge</span>
+      </div>
+      <figcaption><strong>Same noise, different initialization.</strong> Uncurated samples from Priming (top) and RePrime (bottom) after 40, 80, and 160 epochs of priming plus 25k post-training updates, and at L scale (right). Each column uses the same class and the same noise.</figcaption>
+    </figure>
+
+    <div class="joint-card reveal">
+      <div class="joint-copy">
+        <span class="bench-kicker">RePrime-J · single stage</span>
+        <h3>Train both paths at once. Still align only the pair.</h3>
+        <p>Interleave OT updates on noise with aligned reconstruction every other step. The generative path receives the teacher's semantics through the shared weights, not through a target on the samples. The result is a <strong>native</strong> one-step generator that needs no post-training.</p>
+        <div class="joint-stats">
+          <div><span>1.22</span><small>FID · 115M params, refined</small></div>
+          <div><span>9.75</span><small>FD<sub>5</sub> · native, no post-training</small></div>
+          <div><span>12.44</span><small>FD<sub>6</sub> · joint + alignment, 40 ep</small></div>
+        </div>
+      </div>
+      <div class="joint-plot">
+        <img src="assets/img/joint.png" alt="Joint training curves for native FID and FD5, and the 2x2 factorial comparing sequential and joint training with and without alignment." data-zoom data-caption="RePrime-J: joint training with paired-path alignment. (a,b) Native FID and FD5 without any post-training. (c) 2x2 factorial at 40 epochs: alignment and joint training each help, and their combination is best." width="1800" height="588" loading="lazy" decoding="async">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 06 RECIPE ================= -->
+<section class="section section--paper" id="recipe">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="sec-num">06 — The recipe</div>
+      <div>
+        <h2 class="reveal">What to align with,<br>where, and when.</h2>
+        <p class="lede reveal" style="--d:.06s">Three choices, three clear answers — one of which reverses a rule of thumb from diffusion.</p>
+      </div>
+    </div>
+
+    <div class="recipe-grid">
+      <article class="recipe-card reveal">
+        <div class="recipe-tag">Teacher</div>
+        <h3>Go outside the matching spaces.</h3>
+        <svg class="mini-chart" viewBox="0 0 320 200" role="img" aria-label="Scatter: alignment cosine versus FD6 improvement. ConvNeXt 0.97 cosine, 1.3 percent; ResNet-MAE 0.80, 6 percent; DINOv2 0.55, 16.5 percent.">
+          <g class="mini-axis">
+            <line x1="44" y1="164" x2="304" y2="164"/>
+            <line x1="44" y1="24" x2="44" y2="164"/>
+            <text x="44" y="186">easy to align · cos →</text>
+            <text x="10" y="94" transform="rotate(-90 10 94)" text-anchor="middle">FD₆ gain</text>
+          </g>
+          <line class="mini-trend" x1="84" y1="48" x2="286" y2="148"/>
+          <g class="pt" data-x="286" data-y="148" transform="translate(286,148)"><circle r="6"/><text x="-10" y="-12" text-anchor="end">ConvNeXt</text><text x="-10" y="2" text-anchor="end" class="pt-sub">0.97 · +1.3%</text></g>
+          <g class="pt" data-x="196" data-y="104" transform="translate(196,104)"><circle r="6"/><text x="0" y="-14" text-anchor="middle">ResNet-MAE</text><text x="0" y="22" text-anchor="middle" class="pt-sub">0.80 · +6.0%</text></g>
+          <g class="pt pt-best" data-x="84" data-y="48" transform="translate(84,48)"><circle r="7"/><text x="10" y="-8">DINOv2</text><text x="10" y="6" class="pt-sub">0.55 · +16.5%</text></g>
+        </svg>
+        <p>ConvNeXt alignment fits almost perfectly (cosine 0.97) and improves FD<sub>6</sub> by 1.3%; DINOv2 fits loosely (0.55) and improves it by 16.5%. A teacher that reinforces what OT already optimizes adds little. At full budget, MAE and ConvNeXt even hurt.</p>
+        <div class="recipe-foot">Ease of alignment is <em>inversely</em> related to benefit.</div>
+      </article>
+
+      <article class="recipe-card reveal" style="--d:.06s">
+        <div class="recipe-tag">Depth</div>
+        <h3>Mid-network is where semantics live.</h3>
+        <div class="bars-note">FD₆ ↓ · taller is better</div>
+        <div class="bars" data-bars>
+          <div class="bar-col"><span class="bar" data-value="15.78" data-min="14.3" data-max="16.1"></span><b>block 2</b><small>15.78</small></div>
+          <div class="bar-col"><span class="bar" data-value="14.79" data-min="14.3" data-max="16.1"></span><b>block 5</b><small>14.79</small></div>
+          <div class="bar-col best"><span class="bar" data-value="14.54" data-min="14.3" data-max="16.1"></span><b>block 8</b><small>14.54</small></div>
+          <div class="bar-col"><span class="bar" data-value="14.93" data-min="14.3" data-max="16.1"></span><b>block 11</b><small>14.93</small></div>
+        </div>
+        <p>Quality follows an inverted U: early blocks are too shallow for semantics, late blocks serve pixel decoding. Block 8 of 16 is best — FD<sub>6</sub> 8.28 at 160 epochs, the best with 25k post-training updates.</p>
+        <div class="recipe-foot">Default block 5 understates the gain.</div>
+      </article>
+
+      <article class="recipe-card reveal" style="--d:.12s">
+        <div class="recipe-tag">Window</div>
+        <h3>Do not stop early.</h3>
+        <div class="bars-note">FD₆ ↓ · taller is better</div>
+        <div class="bars" data-bars>
+          <div class="bar-col"><span class="bar" data-value="15.89" data-min="14.3" data-max="16.4"></span><b>first 25%</b><small>15.89</small></div>
+          <div class="bar-col"><span class="bar" data-value="15.52" data-min="14.3" data-max="16.4"></span><b>first 50%</b><small>15.52</small></div>
+          <div class="bar-col best"><span class="bar" data-value="14.79" data-min="14.3" data-max="16.4"></span><b>full priming</b><small>14.79</small></div>
+        </div>
+        <p>In diffusion, stopping REPA early helps. In priming, priming runs at a single high noise level, where the semantic target stays informative throughout — so the benefit grows monotonically with the window.</p>
+        <div class="recipe-foot">Opposite of the diffusion rule of thumb.</div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 07 TAKEAWAYS ================= -->
+<section class="section" id="takeaways">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="sec-num">07 — Takeaways</div>
+      <div>
+        <h2 class="reveal">Placement is a design choice,<br>not a hyper-parameter.</h2>
+      </div>
+    </div>
+
+    <ol class="takeaways">
+      <li class="reveal"><span class="tk-n">01</span><div><h4>The path decides the sign.</h4><p>The same REPA loss improves fidelity and coverage on the paired reconstruction path and collapses it on the generative path — every time, across 17 configurations.</p></div></li>
+      <li class="reveal" style="--d:.05s"><span class="tk-n">02</span><div><h4>Instance correspondence is the active ingredient.</h4><p>Random same-class targets recover only 12–16% of the gain; permuted tokens recover 54%; the image's own target recovers all of it.</p></div></li>
+      <li class="reveal" style="--d:.1s"><span class="tk-n">03</span><div><h4>The teacher must add what matching lacks.</h4><p>Semantic, outside the OT spaces, and imperfectly fittable. Ease of alignment is anti-correlated with benefit.</p></div></li>
+      <li class="reveal" style="--d:.15s"><span class="tk-n">04</span><div><h4>One change, two stages faster, zero inference cost.</h4><p>Half the priming epochs and a quarter of the OT updates. The projector is discarded, so the deployed network is unchanged.</p></div></li>
+    </ol>
+
+    <div class="limits reveal">
+      <div class="limits-k">Limitations</div>
+      <p>Our study covers class-conditional ImageNet 256², the Priming architecture, and OT post-training; text-to-image and other objectives remain to be tested. Most configurations are trained once, though re-runs and seven budgets give a consistent sign. All generative-path targets here lack instance correspondence — objectives that create their own, such as trajectory-consistency views, remain open. The teacher adds compute; cached features would reduce it.</p>
+    </div>
+
+    <div class="quote-block reveal">
+      <p>“Align the pair, not the sample.”</p>
+      <span>A principle for combining representation learning with distribution matching.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA / BIBTEX ================= -->
+<section class="cta dark" id="paper">
+  <div class="wrap cta-inner">
+    <div>
+      <p class="eyebrow">Paper &amp; code</p>
+      <h2>One principle,<br>a lot of controls.</h2>
+      <p class="cta-copy">The code is available on GitHub. The manuscript will be released here; the page already covers the method, the mechanism, and every number.</p>
+      <div class="cta-actions">
+        <a class="btn btn-primary" href="https://github.com/Mingxiao-Li/RePrime" target="_blank" rel="noopener">Code on GitHub <span aria-hidden="true">↗</span></a>
+        <span class="btn btn-outline is-disabled" aria-disabled="true">Paper · coming soon</span>
+        <a class="btn btn-outline" href="#top">Back to top</a>
+      </div>
+    </div>
+    <div class="bibtex">
+      <div class="bibtex-head">
+        <span>BibTeX</span>
+        <button class="copy-btn" data-copy="#bibtex-code">Copy</button>
+      </div>
+      <pre id="bibtex-code" tabindex="0" role="region" aria-label="BibTeX entry"><code>@misc{reprime2026,
+  title  = {Align the Pair, Not the Sample:
+            Representation Alignment for
+            Faster and Better One-Step Generators},
+  author = {Anonymous Authors},
+  year   = {2026},
+  note   = {Project page}
+}</code></pre>
+      <p class="bibtex-note">Author list will be updated after the anonymity period.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="footer-brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="1" y="1" width="30" height="30" rx="9" fill="none" stroke="currentColor" stroke-opacity=".28"/>
+        <path d="M9 23V9h5.2a4.6 4.6 0 0 1 0 9.2H12l7.5 4.8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>RePrime · Align the Pair, Not the Sample</span>
+    </div>
+    <div class="footer-meta">
+      <span>Project page</span>
+      <span>Figures and numbers from the paper</span>
+      <a href="https://github.com/Mingxiao-Li/RePrime" target="_blank" rel="noopener">GitHub ↗</a>
+      <a href="#paper">BibTeX</a>
+    </div>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Figure viewer">
+  <button class="lb-close" aria-label="Close figure viewer">×</button>
+  <figure>
+    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="">
+    <figcaption></figcaption>
+  </figure>
+</div>
+
+<noscript><div class="noscript">Interactive charts need JavaScript. All figures and tables are also in the manuscript.</div></noscript>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>
