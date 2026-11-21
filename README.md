@@ -248,6 +248,15 @@ NPROC=8 bash scripts/train_pretrain.sh \
   outputs/pretrain/reprime_j
 ```
 
+Optionally refine the native joint model with the official 25k OT recipe:
+
+```bash
+INIT=outputs/pretrain/reprime_j/checkpoints/latest.pth NPROC=8 \
+  bash scripts/train_posttrain.sh \
+  configs/posttrain/reprime_b_160.yaml \
+  outputs/posttrain/reprime_j
+```
+
 ### OT post-training
 
 The post-training recipe is identical to Priming; only the initialization

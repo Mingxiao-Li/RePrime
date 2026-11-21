@@ -34,7 +34,7 @@ python3 -m http.server 8000
 git clone https://github.com/Mingxiao-Li/RePrime.git
 cd RePrime
 mkdir -p docs
-cp -R /Users/limingxiao/Documents/deepseek-working-dir/t2i/reprime_project_page/. docs/
+cp -R /path/to/reprime_project_page/. docs/
 git add docs
 git commit -m "Add RePrime project page"
 git push origin master
@@ -46,7 +46,7 @@ git push origin master
 ### 独立仓库
 
 ```bash
-cd /Users/limingxiao/Documents/deepseek-working-dir/t2i/reprime_project_page
+cd /path/to/reprime_project_page
 git init && git add . && git commit -m "RePrime project page"
 git branch -M main
 git remote add origin https://github.com/Mingxiao-Li/reprime-page.git
