@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RePrime — Align the Pair, Not the Sample</title>
-<meta name="description" content="Representation alignment for faster and better one-step generators. The same REPA-style loss helps on the paired reconstruction path and collapses diversity on the generative path. RePrime halves priming epochs and quarters post-training updates on ImageNet 256².">
+<meta name="description" content="Representation alignment for faster and better one-step generators. In Priming, the same REPA-style loss helps on the paired reconstruction path and collapses diversity on the generative path. RePrime halves priming epochs and quarters post-training updates on ImageNet 256².">
 <meta name="theme-color" content="#0B0B11">
 <script>
 document.documentElement.classList.add("js");
@@ -64,7 +64,7 @@ setTimeout(function () {
     <p class="eyebrow reveal">Project page</p>
     <h1 class="reveal" style="--d:.05s">Align the <em class="pair">Pair</em>,<br>Not the <em class="sample">Sample</em>.</h1>
     <p class="hero-deck reveal" style="--d:.12s">Representation alignment for faster and better one-step generators.</p>
-    <p class="hero-lede reveal" style="--d:.18s">A one-step generator learns from two kinds of inputs: corrupted real images that come with their clean counterpart, and pure noise that comes with nothing. The same alignment loss helps on one path and destroys diversity on the other. <strong>RePrime follows the pair.</strong></p>
+    <p class="hero-lede reveal" style="--d:.18s">Priming trains a one-step generator on two kinds of inputs: corrupted real images that come with their clean counterpart, and pure noise that comes with nothing. The same alignment loss helps on one path and destroys diversity on the other. <strong>RePrime follows the pair.</strong></p>
     <div class="hero-actions reveal" style="--d:.24s">
       <a class="btn btn-primary" href="#explainer"><span aria-hidden="true">▶</span> Watch the 15s explainer</a>
       <a class="btn btn-outline" href="https://github.com/Mingxiao-Li/RePrime" target="_blank" rel="noopener">Code <span aria-hidden="true">↗</span></a>
@@ -116,7 +116,7 @@ setTimeout(function () {
           <svg viewBox="0 0 24 24"><path d="M4 7h6a4 4 0 0 1 4 4v6M20 7h-6a4 4 0 0 0-4 4"/><circle cx="4" cy="7" r="1.6"/><circle cx="20" cy="7" r="1.6"/><circle cx="14" cy="17" r="1.6"/></svg>
         </div>
         <h3>Two inputs, one network</h3>
-        <p>Training feeds heavily corrupted real images. Inference feeds pure noise. These two paths are not interchangeable — and only one of them has a target that knows which image it came from.</p>
+        <p>In Priming, training feeds heavily corrupted real images; inference feeds pure noise. These two paths are not interchangeable — and only one of them has a target that knows which image it came from.</p>
       </article>
       <article class="tldr-card reveal" style="--d:.06s">
         <div class="icon-tile" aria-hidden="true">
@@ -142,15 +142,15 @@ setTimeout(function () {
     <div class="section-head">
       <div class="sec-num">01 — The puzzle</div>
       <div>
-        <h2 class="reveal">A one-step generator <br>lives two lives.</h2>
-        <p class="lede reveal" style="--d:.06s">REPA made diffusion training an order of magnitude faster by aligning intermediate features with a frozen encoder. Transplanting it to a one-step generator looks trivial — until you ask what the target should be.</p>
+        <h2 class="reveal">A priming model <br>lives two lives.</h2>
+        <p class="lede reveal" style="--d:.06s">REPA made diffusion training an order of magnitude faster by aligning intermediate features with a frozen encoder. Transplanting it to a priming model looks trivial — until you ask what the target should be.</p>
       </div>
     </div>
 
     <div class="two-col">
       <div class="prose reveal">
-        <p>On the <strong>paired path</strong>, the generator reconstructs a corrupted real image <span class="mono">x<sub>s</sub> = 0.2 x<sub>0</sub> + 0.8 ε</span>. Its clean counterpart exists, so the target is simply the encoder's view of that same image.</p>
-        <p>On the <strong>generative path</strong>, the generator maps pure noise to a sample. No real image corresponds to it, yet this is where the final model operates. Every target has to be invented: a random same-class image, a pool of class images, the image the OT plan matches, the sample itself, or an EMA teacher's sample.</p>
+        <p>On the <strong>paired path</strong>, the priming model reconstructs a corrupted real image <span class="mono">x<sub>s</sub> = 0.2 x<sub>0</sub> + 0.8 ε</span>. Its clean counterpart exists, so the target is simply the encoder's view of that same image.</p>
+        <p>On the <strong>generative path</strong>, the priming model maps pure noise to a sample. No real image corresponds to it, yet this is where the final model operates. Every target has to be invented: a random same-class image, a pool of class images, the image the OT plan matches, the sample itself, or an EMA teacher's sample.</p>
         <p class="accent-line">None of these targets knows anything about <em>this</em> particular sample.</p>
       </div>
       <aside class="aside-card reveal" style="--d:.1s">
@@ -355,7 +355,7 @@ setTimeout(function () {
 
     <figure class="video-block reveal" id="explainer">
       <div class="video-shell" data-video>
-        <video controls playsinline preload="none" poster="assets/img/method-poster.jpg" width="1280" height="720" aria-label="Animated explainer with a quiet music bed: the paired and generative paths of a one-step generator, and where representation alignment helps.">
+        <video controls playsinline preload="none" poster="assets/img/method-poster.jpg" width="1280" height="720" aria-label="Animated explainer with a quiet music bed: the paired and generative paths of a priming model, and where representation alignment helps.">
           <source src="assets/video/reprime_method.mp4" type="video/mp4">
         </video>
         <button class="video-play" type="button" aria-label="Play the 15-second method explainer"><span aria-hidden="true">▶</span></button>
@@ -621,12 +621,12 @@ setTimeout(function () {
 
     <figure class="video-block reveal">
       <div class="video-shell" data-video>
-        <video controls playsinline preload="none" poster="assets/img/compare-poster.jpg" width="1280" height="720" aria-label="Same noise, same class, with a quiet music bed: a wipe compares Priming and RePrime samples at 160 epochs.">
+        <video controls playsinline preload="none" poster="assets/img/compare-poster.jpg" width="1280" height="720" aria-label="Same noise, same class, with a quiet music bed: a wipe compares Priming-L and RePrime-L samples at 160 epochs, at native 256 by 256 resolution.">
           <source src="assets/video/reprime_compare.mp4" type="video/mp4">
         </video>
         <button class="video-play" type="button" aria-label="Play the same-noise comparison"><span aria-hidden="true">▶</span></button>
       </div>
-      <figcaption><strong>Same noise, same class.</strong> The divider wipes from Priming to RePrime at 160 epochs, revealing each sample in place — the same noise vectors, the same classes. FID 1.373 → 1.303; FD<sub>6</sub> 9.51 → 8.61. A quiet music bed plays with the wipe.</figcaption>
+      <figcaption><strong>Same noise, same class.</strong> The divider wipes from Priming-L to RePrime-L at 160 epochs, revealing each sample in place — the same noise vectors, the same classes, at native 256×256. FID 1.174 → 1.155; FD<sub>5</sub> 7.41 → 6.43. A quiet music bed plays with the wipe.</figcaption>
     </figure>
 
     <figure class="figure reveal">

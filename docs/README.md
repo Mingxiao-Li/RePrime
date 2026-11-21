@@ -99,8 +99,8 @@ reprime_project_page/
     ├── css/style.css          # 设计系统、布局、动效、响应式
     ├── js/main.js             # 交互：点云实验台、前沿图、灯箱、视频、复制等
     ├── video/
-    │   ├── reprime_method.mp4   # 15s 方法解释视频（1280×720 · 2.2 MB · AAC 音乐）
-    │   └── reprime_compare.mp4  # 9s 同噪声对比视频（1280×720 · 1.3 MB · AAC 音乐）
+    │   ├── reprime_method.mp4   # 15s 方法解释视频（1280×720 · 2.3 MB · AAC 音乐）
+    │   └── reprime_compare.mp4  # 9s 同噪声对比视频（1280×720 · 1.6 MB · AAC 音乐）
     └── img/
         ├── teaser.jpg         # Hero 样本墙
         ├── collapse.jpg       # 原型吸引（同噪声 5 种配方）
@@ -140,7 +140,7 @@ reprime_project_page/
 | 文件 | 时长 | 位置 | 内容 |
 |---|---|---|---|
 | `assets/video/reprime_method.mp4` | 15 s | 03 Method | 两条路径、loss 挂在哪、projector 丢弃 |
-| `assets/video/reprime_compare.mp4` | 9 s | 05 Results | 同噪声 Priming → RePrime 擦除对比 |
+| `assets/video/reprime_compare.mp4` | 9 s | 05 Results | 同噪声 Priming-L → RePrime-L 擦除对比（原生 256×256 样本） |
 
 封面分别是 `assets/img/method-poster.jpg` 和 `compare-poster.jpg`。播放器使用原生 controls + 自定义播放按钮；`preload="none"`，离开视口自动暂停。
 
