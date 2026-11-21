@@ -347,12 +347,14 @@ and a pretraining checkpoint to sample the reconstruction-only model.
 The full mapping, including teacher/depth/window/correspondence ablations and
 the placement experiments, is in [`configs/README.md`](configs/README.md).
 Ablations use the sanctioned 40-epoch protocol; the main numbers use 160 epochs.
+The correspondence-control arms (`abl_corr_*`) use `pretrain_e2.py` on two ranks.
 
 ## Code structure
 
 ```text
 .
 ├── pretrain.py                 # reconstruction pretraining + RePrime alignment + RePrime-J
+├── pretrain_e2.py              # E2 correspondence-control entry point (2 ranks)
 ├── posttrain.py                # OT distribution matching (official Priming recipe)
 ├── eval.py                     # official FID / FDr5 evaluation
 ├── models/

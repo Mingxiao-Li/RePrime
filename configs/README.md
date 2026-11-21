@@ -30,10 +30,12 @@ passed with `--init-checkpoint`; the recipe itself is unchanged.
 | Teacher: DINOv2 vs ConvNeXt | `pretrain/abl_teacher_convnext.yaml` (160 epochs) |
 | Depth: block 2 / 8 / 11 | `pretrain/abl_depth_blk2.yaml`, `abl_depth_blk8.yaml`, `abl_depth_blk11.yaml` |
 | Window: first 25% / 50% / 100% | `pretrain/abl_window_25.yaml`, `abl_window_50.yaml`, `abl_window_100.yaml` |
-| Correspondence control | `pretrain/abl_corr_self.yaml`, `abl_corr_random.yaml`, `abl_corr_permuted.yaml` |
+| Correspondence control | `pretrain/abl_corr_self.yaml`, `abl_corr_random.yaml`, `abl_corr_permuted.yaml` — launch with `pretrain_e2.py` on 2 ranks |
 | Placement: generative path | `posttrain/placement/*.yaml` |
 | Placement: paired path | `posttrain/placement/b160_repapair.yaml` |
 
+The correspondence-control recipes use `pretrain_e2.py` (the E2 entry point) and
+`gradient_accumulation_steps: 8` on two ranks, preserving the global batch 1,024.
 The depth/window recipes use the 40-epoch protocol and `train.allow_short: true`; this
 is a sanctioned shortened protocol for ablations, not a change to the
 160-epoch paper recipe.
