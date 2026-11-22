@@ -9,6 +9,7 @@
   <a href="https://mingxiao-li.github.io/RePrime/"><img src="https://img.shields.io/badge/Project%20Page-RePrime-3B2BF0" alt="Project page"></a>
   <a href="https://mingxiao-li.github.io/RePrime/"><img src="https://img.shields.io/badge/Paper-Coming%20Soon-lightgrey" alt="Paper"></a>
   <a href="https://github.com/Mingxiao-Li/RePrime"><img src="https://img.shields.io/badge/Code-GitHub-181717?logo=github" alt="Code"></a>
+  <a href="https://huggingface.co/Lixiaoming/RePrime"><img src="https://img.shields.io/badge/Weights-Hugging%20Face-FFD21E?logo=huggingface&amp;logoColor=black" alt="Weights"></a>
 </p>
 
 <p><em>One-step ImageNet 256² generation in a single network evaluation, without guidance.</em></p>
@@ -119,6 +120,36 @@ FD₅ is 9.75 before refinement. FID/FDr⁵ average three sampling seeds.</sub>
   <img src="media/collapse.jpg" width="88%" alt="Prototype attraction: same noise, five recipes">
 </p>
 <p align="center"><sub>Prototype attraction: the same eight noise vectors, five post-training recipes. Generative-path alignment produces typical, close-up modes; RePrime preserves coverage.</sub></p>
+
+---
+
+## Checkpoints
+
+Inference-ready weights and pretraining checkpoints are hosted on Hugging Face:
+**[Lixiaoming/RePrime](https://huggingface.co/Lixiaoming/RePrime)**.
+The SHA256 of every file, its byte size, and its evaluation record are in
+[`manifest.json`](https://huggingface.co/Lixiaoming/RePrime/blob/main/manifest.json).
+
+| Model | FID (paper) | Checkpoint |
+|---|---:|---|
+| **RePrime-L / 160** | **1.155** | `posttraining/reprime_l_160_25k.pth` |
+| **RePrime-B / 160, block 8** | **1.268** | `posttraining/reprime_b_160_blk8_25k.pth` |
+| **RePrime-B / 160** | **1.303** | `posttraining/reprime_b_160_25k.pth` |
+| **RePrime-J / B, refined** | **1.224** | `posttraining/reprime_j_b_25k.pth` |
+| RePrime-B / 160, pretraining | — | `pretraining/reprime_b_160.pth` |
+| RePrime-B / 160 block 8, pretraining | — | `pretraining/reprime_b_160_blk8.pth` |
+| RePrime-L / 160, pretraining | — | `pretraining/reprime_l_160.pth` |
+| RePrime-J / B, native | 2.47 | `pretraining/reprime_j_b_160.pth` |
+
+The four post-training files are the inference-ready releases; the pretraining
+files reproduce the 25k OT stage. Download a file with:
+
+```bash
+hf download Lixiaoming/RePrime posttraining/reprime_l_160_25k.pth --local-dir ckpts
+```
+
+The model card on the Hub documents the exact configuration, evaluation
+protocol, and license.
 
 ---
 
