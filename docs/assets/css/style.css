@@ -792,3 +792,13 @@ body.no-scroll{overflow:hidden}
   .video-block{margin-bottom:24px}
 }
 #explainer{scroll-margin-top:110px}
+
+/* ---------- authors ---------- */
+.author-list{font-family:var(--sans);font-size:clamp(.9rem,1.25vw,1.02rem);line-height:1.7;color:rgba(244,240,232,.78);max-width:920px;margin:26px auto 0}
+.author-list sup{font-size:.62em;color:rgba(244,240,232,.5);margin-left:1px}
+.affiliations{font-size:.71rem;line-height:1.75;color:rgba(244,240,232,.46);max-width:920px;margin:9px auto 0}
+.affiliations sup{color:rgba(244,240,232,.6);margin-right:2px}
+@media (max-width:760px){
+  .author-list{font-size:.8rem;max-width:340px}
+  .affiliations{font-size:.64rem;max-width:340px}
+}

@@ -45,7 +45,7 @@ git pull
 
 ```bash
 mkdir -p docs
-cp -R /path/to/reprime_project_page/. docs/
+cp -R /Users/limingxiao/Documents/deepseek-working-dir/t2i/reprime_project_page/. docs/
 ```
 
 检查：
@@ -113,7 +113,7 @@ Pages 自动重建，1–2 分钟生效；浏览器缓存用 `Cmd + Shift + R` �
 ## B2. 推送页面
 
 ```bash
-cd /path/to/reprime_project_page
+cd /Users/limingxiao/Documents/deepseek-working-dir/t2i/reprime_project_page
 
 git init
 git add .

@@ -68,9 +68,15 @@ setTimeout(function () {
     <div class="hero-actions reveal" style="--d:.24s">
       <a class="btn btn-primary" href="#explainer"><span aria-hidden="true">▶</span> Watch the 15s explainer</a>
       <a class="btn btn-outline" href="https://github.com/Mingxiao-Li/RePrime" target="_blank" rel="noopener">Code <span aria-hidden="true">↗</span></a>
-      <span class="btn btn-outline is-disabled" aria-disabled="true">Paper · coming soon</span>
+      <!-- arXiv link: replace the href with the arXiv URL once the preprint is public. -->
+      <a class="btn btn-outline" href="assets/paper.pdf" target="_blank" rel="noopener">Paper <span aria-hidden="true">↗</span></a>
     </div>
-    <p class="authors reveal" style="--d:.3s">Anonymous Authors</p>
+    <p class="author-list reveal" style="--d:.3s">
+      Mingxiao Li<sup>1</sup> · Xuantuo Huang<sup>1,2</sup> · Encheng Su<sup>1,3</sup> · Aoran Wang<sup>1</sup> · Han Zhang<sup>1</sup> · Jinouwen Zhang<sup>1</sup> · Shixiang Tang<sup>1,4</sup>
+    </p>
+    <p class="affiliations reveal" style="--d:.34s">
+      <sup>1</sup>Shanghai Artificial Intelligence Laboratory · <sup>2</sup>Peking University · <sup>3</sup>University of Science and Technology of China · <sup>4</sup>University of Oxford
+    </p>
   </div>
 
   <div class="wrap hero-visual reveal" style="--d:.36s">
@@ -751,10 +757,10 @@ setTimeout(function () {
     <div>
       <p class="eyebrow">Paper &amp; code</p>
       <h2>One principle,<br>a lot of controls.</h2>
-      <p class="cta-copy">The code is available on GitHub. The manuscript will be released here; the page already covers the method, the mechanism, and every number.</p>
+      <p class="cta-copy">The code is available on GitHub and the manuscript is available as a PDF. The arXiv link will be added once the preprint is public.</p>
       <div class="cta-actions">
         <a class="btn btn-primary" href="https://github.com/Mingxiao-Li/RePrime" target="_blank" rel="noopener">Code on GitHub <span aria-hidden="true">↗</span></a>
-        <span class="btn btn-outline is-disabled" aria-disabled="true">Paper · coming soon</span>
+        <a class="btn btn-outline" href="assets/paper.pdf" target="_blank" rel="noopener">Paper (PDF) <span aria-hidden="true">↗</span></a>
         <a class="btn btn-outline" href="#top">Back to top</a>
       </div>
     </div>
@@ -763,15 +769,17 @@ setTimeout(function () {
         <span>BibTeX</span>
         <button class="copy-btn" data-copy="#bibtex-code">Copy</button>
       </div>
-      <pre id="bibtex-code" tabindex="0" role="region" aria-label="BibTeX entry"><code>@misc{reprime2026,
+      <pre id="bibtex-code" tabindex="0" role="region" aria-label="BibTeX entry"><code>@misc{li2026reprime,
   title  = {Align the Pair, Not the Sample:
             Representation Alignment for
             Faster and Better One-Step Generators},
-  author = {Anonymous Authors},
+  author = {Li, Mingxiao and Huang, Xuantuo and Su, Encheng and
+            Wang, Aoran and Zhang, Han and Zhang, Jinouwen and
+            Tang, Shixiang},
   year   = {2026},
-  note   = {Project page}
+  note   = {Project page: https://mingxiao-li.github.io/RePrime/}
 }</code></pre>
-      <p class="bibtex-note">Author list will be updated after the anonymity period.</p>
+      <p class="bibtex-note">arXiv link will be added once the preprint is public.</p>
     </div>
   </div>
 </section>

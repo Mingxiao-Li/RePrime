@@ -1,7 +1,7 @@
 # RePrime — Project Page
 
 > **Align the Pair, Not the Sample: Representation Alignment for Faster and Better One-Step Generators**  
-> Anonymous project page · no venue or review information  
+> Project page · no venue or review information  
 > **Live:** https://mingxiao-li.github.io/RePrime/
 
 一个为论文制作的可直接部署的单页项目主页。纯 HTML / CSS / JavaScript，无构建步骤、无依赖安装，适合 GitHub Pages。
@@ -34,7 +34,7 @@ python3 -m http.server 8000
 git clone https://github.com/Mingxiao-Li/RePrime.git
 cd RePrime
 mkdir -p docs
-cp -R /path/to/reprime_project_page/. docs/
+cp -R /Users/limingxiao/Documents/deepseek-working-dir/t2i/reprime_project_page/. docs/
 git add docs
 git commit -m "Add RePrime project page"
 git push origin master
@@ -46,7 +46,7 @@ git push origin master
 ### 独立仓库
 
 ```bash
-cd /path/to/reprime_project_page
+cd /Users/limingxiao/Documents/deepseek-working-dir/t2i/reprime_project_page
 git init && git add . && git commit -m "RePrime project page"
 git branch -M main
 git remote add origin https://github.com/Mingxiao-Li/reprime-page.git
@@ -67,11 +67,11 @@ Pages → `main` / `/ (root)`。地址：`https://mingxiao-li.github.io/reprime-
 
 ## 上线前替换清单
 
-页面目前保持**匿名**（`Anonymous Authors`），且不包含任何会议名、审稿状态或投稿信息。公开论文与代码后，按下面清单修改：
+页面已使用 arXiv 版本的作者列表，且不包含任何会议名、审稿状态或投稿信息。需要修改时按下面清单操作：
 
 | 要改什么 | 位置 |
 |---|---|
-| 作者与单位 | `index.html` 搜索 `Anonymous Authors`（Hero 一处、BibTeX 一处） |
+| 作者与单位 | 已写入 Hero 与 BibTeX；修改时搜索 `Mingxiao Li` |
 | 论文链接 | 页面上的 `Paper · coming soon` 占位；公开后把 PDF 放到 `assets/paper.pdf`，再把占位换成 `<a class="btn btn-primary" href="assets/paper.pdf">Paper</a>` |
 | 补充材料 | 同上，放到 `assets/supp.pdf` 并新增按钮 |
 | 代码链接 | 已指向 `https://github.com/Mingxiao-Li/RePrime`（导航、Hero、CTA、页脚共 4 处）；换仓库时全局替换即可 |
@@ -81,9 +81,9 @@ Pages → `main` / `/ (root)`。地址：`https://mingxiao-li.github.io/reprime-
 | 页面标题/描述 | `<title>`、`<meta name="description">`、`og:*` |
 | 主色/字体 | `assets/css/style.css` 顶部 `:root` 变量；字体在 `<head>` 的 Google Fonts `<link>` |
 
-在匿名期结束前，页面保持 `Paper · coming soon` 占位即可；页面上没有任何会议、审稿或投稿状态信息。
+`Paper` 按钮已指向 `assets/paper.pdf`；arXiv 链接公开后替换对应 `href` 即可。
 
-> 注意：代码仓库地址会暴露 GitHub 用户名。如果仍希望保持双盲匿名，建议在评审期间把仓库设为 private，或先不公开此页面；接收后再把 `Anonymous Authors` 换成正式作者列表。
+> 注意：页面与代码仓库现在都已公开作者信息；如之后需要匿名版本，请另行部署。
 
 ---
 

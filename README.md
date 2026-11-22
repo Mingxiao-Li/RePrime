@@ -3,11 +3,14 @@
 <h1>Align the Pair, Not the Sample</h1>
 <h3>Representation Alignment for Faster and Better One-Step Generators</h3>
 
-<p><strong>Anonymous Authors</strong></p>
+<p><strong>Mingxiao Li</strong><sup>1</sup>, <strong>Xuantuo Huang</strong><sup>1,2</sup>, <strong>Encheng Su</strong><sup>1,3</sup>, <strong>Aoran Wang</strong><sup>1</sup>, <strong>Han Zhang</strong><sup>1</sup>, <strong>Jinouwen Zhang</strong><sup>1</sup>, <strong>Shixiang Tang</strong><sup>1,4</sup></p>
+
+<p><sup>1</sup>Shanghai Artificial Intelligence Laboratory · <sup>2</sup>Peking University · <sup>3</sup>University of Science and Technology of China · <sup>4</sup>University of Oxford</p>
 
 <p>
   <a href="https://mingxiao-li.github.io/RePrime/"><img src="https://img.shields.io/badge/Project%20Page-RePrime-3B2BF0" alt="Project page"></a>
-  <a href="https://mingxiao-li.github.io/RePrime/"><img src="https://img.shields.io/badge/Paper-Coming%20Soon-lightgrey" alt="Paper"></a>
+  <!-- arXiv link: replace the PDF link once the preprint is public. -->
+  <a href="https://mingxiao-li.github.io/RePrime/assets/paper.pdf"><img src="https://img.shields.io/badge/Paper-PDF-b31b1b" alt="Paper"></a>
   <a href="https://github.com/Mingxiao-Li/RePrime"><img src="https://img.shields.io/badge/Code-GitHub-181717?logo=github" alt="Code"></a>
   <a href="https://huggingface.co/Lixiaoming/RePrime"><img src="https://img.shields.io/badge/Weights-Hugging%20Face-FFD21E?logo=huggingface&amp;logoColor=black" alt="Weights"></a>
 </p>
@@ -424,16 +427,18 @@ The core change relative to the official Priming implementation is contained in
 ## Citation
 
 ```bibtex
-@misc{reprime2026,
+@misc{li2026reprime,
   title  = {Align the Pair, Not the Sample: Representation Alignment for
             Faster and Better One-Step Generators},
-  author = {Anonymous Authors},
+  author = {Li, Mingxiao and Huang, Xuantuo and Su, Encheng and
+            Wang, Aoran and Zhang, Han and Zhang, Jinouwen and
+            Tang, Shixiang},
   year   = {2026},
   note   = {Project page: https://mingxiao-li.github.io/RePrime/}
 }
 ```
 
-The author list will be updated after the anonymity period.
+The arXiv link will be added once the preprint is public.
 
 ## Acknowledgements
 
