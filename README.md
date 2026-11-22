@@ -135,17 +135,18 @@ The SHA256 of every file, its byte size, and its evaluation record are in
 
 | Model | FID (paper) | Checkpoint |
 |---|---:|---|
-| **RePrime-L / 160** | **1.155** | `posttraining/reprime_l_160_25k.pth` |
-| **RePrime-B / 160, block 8** | **1.268** | `posttraining/reprime_b_160_blk8_25k.pth` |
-| **RePrime-B / 160** | **1.303** | `posttraining/reprime_b_160_25k.pth` |
-| **RePrime-J / B, refined** | **1.224** | `posttraining/reprime_j_b_25k.pth` |
-| RePrime-B / 160, pretraining | — | `pretraining/reprime_b_160.pth` |
-| RePrime-B / 160 block 8, pretraining | — | `pretraining/reprime_b_160_blk8.pth` |
-| RePrime-L / 160, pretraining | — | `pretraining/reprime_l_160.pth` |
-| RePrime-J / B, native | 2.47 | `pretraining/reprime_j_b_160.pth` |
+| **RePrime-L / 160** | **1.155** | [`posttraining/reprime_l_160_25k.pth`](https://huggingface.co/Lixiaoming/RePrime/blob/main/posttraining/reprime_l_160_25k.pth) |
+| **RePrime-B / 160, block 8** | **1.268** | [`posttraining/reprime_b_160_blk8_25k.pth`](https://huggingface.co/Lixiaoming/RePrime/blob/main/posttraining/reprime_b_160_blk8_25k.pth) |
+| **RePrime-B / 160** | **1.303** | [`posttraining/reprime_b_160_25k.pth`](https://huggingface.co/Lixiaoming/RePrime/blob/main/posttraining/reprime_b_160_25k.pth) |
+| **RePrime-J / B, refined** | **1.224** | [`posttraining/reprime_j_b_25k.pth`](https://huggingface.co/Lixiaoming/RePrime/blob/main/posttraining/reprime_j_b_25k.pth) |
+| RePrime-B / 160, pretraining | — | [`pretraining/reprime_b_160.pth`](https://huggingface.co/Lixiaoming/RePrime/blob/main/pretraining/reprime_b_160.pth) |
+| RePrime-B / 160 block 8, pretraining | — | [`pretraining/reprime_b_160_blk8.pth`](https://huggingface.co/Lixiaoming/RePrime/blob/main/pretraining/reprime_b_160_blk8.pth) |
+| RePrime-L / 160, pretraining | — | [`pretraining/reprime_l_160.pth`](https://huggingface.co/Lixiaoming/RePrime/blob/main/pretraining/reprime_l_160.pth) |
+| RePrime-J / B, native | 2.47 | [`pretraining/reprime_j_b_160.pth`](https://huggingface.co/Lixiaoming/RePrime/blob/main/pretraining/reprime_j_b_160.pth) |
 
-The four post-training files are the inference-ready releases; the pretraining
-files reproduce the 25k OT stage. Download a file with:
+All eight files are uploaded; `manifest.json` records their byte sizes and
+SHA256. The four post-training files are the inference-ready releases; the
+pretraining files reproduce the 25k OT stage. Download a file with:
 
 ```bash
 hf download Lixiaoming/RePrime posttraining/reprime_l_160_25k.pth --local-dir ckpts
