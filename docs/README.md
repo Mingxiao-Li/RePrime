@@ -72,16 +72,16 @@ Pages → `main` / `/ (root)`。地址：`https://mingxiao-li.github.io/reprime-
 | 要改什么 | 位置 |
 |---|---|
 | 作者与单位 | 已写入 Hero 与 BibTeX；修改时搜索 `Mingxiao Li` |
-| 论文链接 | 页面上的 `Paper · coming soon` 占位；公开后把 PDF 放到 `assets/paper.pdf`，再把占位换成 `<a class="btn btn-primary" href="assets/paper.pdf">Paper</a>` |
+| 论文链接 | 已指向 `https://arxiv.org/abs/2611.29547`；PDF 保留在 `assets/paper.pdf` |
 | 补充材料 | 同上，放到 `assets/supp.pdf` 并新增按钮 |
 | 代码链接 | 已指向 `https://github.com/Mingxiao-Li/RePrime`（导航、Hero、CTA、页脚共 4 处）；换仓库时全局替换即可 |
-| 论文/arXiv 链接 | 公开后把 `Paper · coming soon` 占位换成链接 |
+| 论文/arXiv 链接 | 已更新为 `arXiv:2611.29547` |
 | BibTeX | `index.html` 底部 `#bibtex-code`，补全作者、booktitle、pages |
 | 社交预览图 | 替换 `assets/img/og.jpg`（1200×630），并把 `<meta property="og:image">` 改成部署后的**绝对 URL** |
 | 页面标题/描述 | `<title>`、`<meta name="description">`、`og:*` |
 | 主色/字体 | `assets/css/style.css` 顶部 `:root` 变量；字体在 `<head>` 的 Google Fonts `<link>` |
 
-`Paper` 按钮已指向 `assets/paper.pdf`；arXiv 链接公开后替换对应 `href` 即可。
+`Paper` 按钮已指向 `https://arxiv.org/abs/2611.29547`；PDF 仍保留在 `assets/paper.pdf`。
 
 > 注意：页面与代码仓库现在都已公开作者信息；如之后需要匿名版本，请另行部署。
 

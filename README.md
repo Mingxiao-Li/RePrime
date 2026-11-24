@@ -9,8 +9,7 @@
 
 <p>
   <a href="https://mingxiao-li.github.io/RePrime/"><img src="https://img.shields.io/badge/Project%20Page-RePrime-3B2BF0" alt="Project page"></a>
-  <!-- arXiv link: replace the PDF link once the preprint is public. -->
-  <a href="https://mingxiao-li.github.io/RePrime/assets/paper.pdf"><img src="https://img.shields.io/badge/Paper-PDF-b31b1b" alt="Paper"></a>
+  <a href="https://arxiv.org/abs/2611.29547"><img src="https://img.shields.io/badge/arXiv-2611.29547-b31b1b" alt="arXiv"></a>
   <a href="https://github.com/Mingxiao-Li/RePrime"><img src="https://img.shields.io/badge/Code-GitHub-181717?logo=github" alt="Code"></a>
   <a href="https://huggingface.co/Lixiaoming/RePrime"><img src="https://img.shields.io/badge/Weights-Hugging%20Face-FFD21E?logo=huggingface&amp;logoColor=black" alt="Weights"></a>
 </p>
@@ -435,11 +434,15 @@ The core change relative to the official Priming implementation is contained in
             Wang, Aoran and Zhang, Han and Zhang, Jinouwen and
             Tang, Shixiang},
   year   = {2026},
+  eprint = {2611.29547},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url    = {https://arxiv.org/abs/2611.29547},
   note   = {Project page: https://mingxiao-li.github.io/RePrime/}
 }
 ```
 
-The arXiv link will be added once the preprint is public.
+arXiv:2611.29547.
 
 ## Acknowledgements
 
