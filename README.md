@@ -442,8 +442,6 @@ The core change relative to the official Priming implementation is contained in
 }
 ```
 
-arXiv:2611.29547.
-
 ## Acknowledgements
 
 This code builds on the official
